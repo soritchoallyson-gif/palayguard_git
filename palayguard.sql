@@ -39,7 +39,7 @@ CREATE TABLE IF NOT EXISTS alert_notification (
 );
 
 CREATE TABLE IF NOT EXISTS push_subscriptions (
-  id INT AUTO_INCREMENT PRIMARY KEY,
+  id INT AUTO_INCREMENT PRIMARY KEY,railway
   user_id INT,
   subscription_data TEXT,
   created_at DATETIME DEFAULT NOW(),
