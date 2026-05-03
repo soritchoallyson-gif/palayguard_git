@@ -20,6 +20,37 @@ export default function Dashboard() {
   const [threshold, setThreshold] = useState(40);
   const [criticalAlerts, setCriticalAlerts] = useState([]);
   const [lastUpdate, setLastUpdate] = useState('--:--:--');
+  const [weather, setWeather] = useState({ temp: '--', desc: 'Loading weather...' });
+
+  const fetchWeather = useCallback(async (lat, lon) => {
+    try {
+      const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true`);
+      const data = await res.json();
+      if (data.current_weather) {
+        const codes = {
+          0: 'Clear sky ☀️', 1: 'Mainly clear 🌤️', 2: 'Partly cloudy ⛅', 3: 'Overcast ☁️',
+          45: 'Fog 🌫️', 48: 'Depositing rime fog 🌫️', 51: 'Light drizzle 🌧️', 53: 'Moderate drizzle 🌧️',
+          55: 'Dense drizzle 🌧️', 61: 'Slight rain 🌧️', 63: 'Moderate rain 🌧️', 65: 'Heavy rain 🌧️',
+          71: 'Slight snow ❄️', 73: 'Moderate snow ❄️', 75: 'Heavy snow ❄️', 95: 'Thunderstorm ⛈️',
+        };
+        const desc = codes[data.current_weather.weathercode] || 'Cloudy ☁️';
+        setWeather({ temp: Math.round(data.current_weather.temperature), desc });
+      }
+    } catch (err) {
+      setWeather({ temp: '--', desc: 'Weather unavailable' });
+    }
+  }, []);
+
+  useEffect(() => {
+    if ("geolocation" in navigator) {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => fetchWeather(pos.coords.latitude, pos.coords.longitude),
+        () => fetchWeather(15.0143, 120.0805) // Default to San Narciso, Zambales
+      );
+    } else {
+      fetchWeather(15.0143, 120.0805);
+    }
+  }, [fetchWeather]);
 
   const fetchData = useCallback(async () => {
     try {
@@ -188,9 +219,11 @@ export default function Dashboard() {
                 }}>
                   ☁ LOCAL ATMOSPHERE
                 </div>
-                <div style={{ fontSize: 30, fontWeight: 700 }}>24°C</div>
+                <div style={{ fontSize: 30, fontWeight: 700 }}>
+                  {weather.temp}°C
+                </div>
                 <div style={{ fontSize: 13, color: '#888', marginTop: 4 }}>
-                  Partly Cloudy
+                  {weather.desc}
                 </div>
               </div>
 

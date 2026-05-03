@@ -12,7 +12,7 @@ export default function Sidebar({ open, onClose }) {
     navigate('/');
   };
 
-  const navItem = (label, path, icon) => (
+  const navItem = (label, path) => (
     <div
       onClick={() => {
         navigate(path);
@@ -33,7 +33,6 @@ export default function Sidebar({ open, onClose }) {
         transition: 'background 0.2s',
       }}
     >
-      <span style={{ fontSize: 18 }}>{icon}</span>
       {label}
     </div>
   );
@@ -94,9 +93,9 @@ export default function Sidebar({ open, onClose }) {
         </div>
 
         <div style={{ flex: 1 }}>
-  {navItem('Dashboard', '/dashboard', '📊')}
-  {navItem('Alerts', '/alerts', '⚠️')}
-  {role === 'admin' && navItem('Admin Panel', '/admin', '🔑')}
+  {navItem('Dashboard', '/dashboard')}
+  {navItem('Alerts', '/alerts')}
+  {role === 'admin' && navItem('Admin Panel', '/admin')}
 </div>
         <div style={{ borderTop: '1px solid #e8e4dc', paddingTop: 16 }}>
           {fullName && (
@@ -107,7 +106,7 @@ export default function Sidebar({ open, onClose }) {
                 color: '#888',
               }}
             >
-              {role === 'admin' ? '🔑 Admin' : '👨‍🌾 Farmer'} — {fullName}
+              {role === 'admin' ? 'Admin' : 'Farmer'} — {fullName}
             </div>
           )}
           <div
@@ -124,7 +123,7 @@ export default function Sidebar({ open, onClose }) {
               transition: 'background 0.2s',
             }}
           >
-            <span>🚪</span> Sign Out
+            Sign Out
           </div>
         </div>
       </div>

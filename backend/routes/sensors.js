@@ -56,4 +56,47 @@ router.post('/threshold', auth, adminOnly, async (req, res) => {
   res.json({ message: 'Threshold updated', threshold });
 });
 
+// Arduino direct POST endpoint — no JWT needed, uses x-api-key header
+router.post('/data', async (req, res) => {
+  const apiKey = req.headers['x-api-key'];
+  if (apiKey !== process.env.JWT_SECRET) {
+    return res.status(401).json({ message: 'Unauthorized' });
+  }
+
+  const { moisture, temperature, humidity, sensor_id } = req.body;
+  try {
+    await db.query(
+      'INSERT INTO soil_moisture (sensor_id, moisture_value, temperature, humidity) VALUES (?, ?, ?, ?)',
+      [sensor_id, moisture, temperature || null, humidity || null]
+    );
+
+    const threshold = parseFloat(process.env.MOISTURE_THRESHOLD || 40);
+    if (moisture < threshold) {
+      const [sensor] = await db.query(
+        'SELECT user_id FROM sensors WHERE sensor_id = ?',
+        [sensor_id]
+      );
+      if (sensor.length > 0) {
+        const alertType = moisture < 20 ? 'Critical Moisture Drop' : 'Low Moisture';
+        const alertStatus = moisture < 20 ? 'critical' : 'pending';
+        await db.query(
+          `INSERT INTO alert_notification 
+           (sensor_id, user_id, alert_type, moisture_value, status)
+           VALUES (?, ?, ?, ?, ?)`,
+          [sensor_id, sensor[0].user_id, alertType, moisture, alertStatus]
+        );
+        if (global.sendPushToAll) {
+          await global.sendPushToAll({
+            title: 'PalayGuard Alert 🌾',
+            body: `Moisture is at ${moisture}%. Time to irrigate!`,
+          });
+        }
+      }
+    }
+    res.json({ message: 'Data saved', moisture });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 module.exports = router;

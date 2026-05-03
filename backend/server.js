@@ -11,7 +11,7 @@ const authRoutes = require('./routes/auth');
 const sensorRoutes = require('./routes/sensors');
 const alertRoutes = require('./routes/alerts');
 const pushRoutes = require('./routes/push');
-const { startSerialReader } = require('./arduino/serialReader');
+
 
 app.use('/api/auth', authRoutes);
 app.use('/api/sensors', sensorRoutes);
@@ -25,5 +25,4 @@ app.get('/api/health', (req, res) => {
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
   console.log(`PalayGuard backend running on port ${PORT}`);
-  startSerialReader();
 });
