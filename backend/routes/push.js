@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const webpush = require('web-push');
 const db = require('../db');
-const auth = require('../middleware/authMiddleware');
+const { auth } = require('../middleware/authMiddleware');
 require('dotenv').config();
 
 const vapidKeys = webpush.generateVAPIDKeys();
