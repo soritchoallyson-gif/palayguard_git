@@ -10,6 +10,7 @@ export default function Alerts() {
   const [sidebarOpen, setSidebarOpen] = useState(!isMobile());
   const [alerts, setAlerts] = useState([]);
   const [filter, setFilter] = useState({ critical: true, warnings: true });
+  const role = localStorage.getItem('role');
 
   const fetchAlerts = async () => {
     try {
@@ -102,17 +103,25 @@ export default function Alerts() {
             <span style={{ fontWeight: 600, fontSize: 16 }}>Alerts</span>
           </div>
           <span
-  onClick={() => navigate('/alerts')}
-  style={{
-    fontSize: 22, color: '#555',
-    cursor: 'pointer',
-  }}
->
-  🔔
-</span>
+            onClick={() => navigate('/alerts')}
+            style={{ fontSize: 22, color: '#555', cursor: 'pointer' }}
+          >
+            🔔
+          </span>
         </div>
 
         <div style={{ padding: 20 }}>
+
+          {/* Role badge */}
+          <div style={{
+            marginBottom: 16, fontSize: 12,
+            color: role === 'admin' ? '#2d5a27' : '#888',
+            fontWeight: 600,
+          }}>
+            {role === 'admin' ? '🔑 Admin — You can acknowledge and resolve alerts' : '👨‍🌾 Farmer — View only'}
+          </div>
+
+          {/* Filter */}
           <div style={{
             background: '#ffffff', borderRadius: 14,
             padding: '16px 20px', display: 'inline-block',
@@ -140,8 +149,7 @@ export default function Alerts() {
                     }
                     style={{
                       accentColor: '#2d5a27',
-                      width: 16, height: 16,
-                      cursor: 'pointer',
+                      width: 16, height: 16, cursor: 'pointer',
                     }}
                   />
                   {label}
@@ -150,6 +158,7 @@ export default function Alerts() {
             )}
           </div>
 
+          {/* Table */}
           <div style={{
             background: '#f0ede6', borderRadius: 16,
             overflow: 'hidden',
@@ -199,9 +208,7 @@ export default function Alerts() {
                         </div>
                       </td>
                       <td style={{ padding: '14px 20px' }}>
-                        <div style={{
-                          display: 'flex', alignItems: 'center', gap: 8,
-                        }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                           <span style={{
                             width: 9, height: 9, borderRadius: '50%',
                             background: statusDotColor[a.status] || '#888',
@@ -230,7 +237,7 @@ export default function Alerts() {
                         </span>
                       </td>
                       <td style={{ padding: '14px 20px' }}>
-                        {a.status === 'critical' && (
+                        {role === 'admin' && a.status === 'critical' && (
                           <button
                             onClick={() => handleAcknowledge(a.alert_id)}
                             style={{
@@ -243,7 +250,7 @@ export default function Alerts() {
                             Acknowledge
                           </button>
                         )}
-                        {a.status === 'acknowledged' && (
+                        {role === 'admin' && a.status === 'acknowledged' && (
                           <button
                             onClick={() => handleResolve(a.alert_id)}
                             style={{
@@ -261,6 +268,11 @@ export default function Alerts() {
                         )}
                         {a.status === 'pending' && (
                           <span style={{ fontSize: 18, color: '#aaa' }}>⋮</span>
+                        )}
+                        {role !== 'admin' && ['critical', 'acknowledged'].includes(a.status) && (
+                          <span style={{ fontSize: 12, color: '#aaa', fontStyle: 'italic' }}>
+                            View only
+                          </span>
                         )}
                       </td>
                     </tr>

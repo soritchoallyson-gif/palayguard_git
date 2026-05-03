@@ -94,10 +94,10 @@ export default function Sidebar({ open, onClose }) {
         </div>
 
         <div style={{ flex: 1 }}>
-          {navItem('Dashboard', '/dashboard', '📊')}
-          {navItem('Alerts', '/alerts', '⚠️')}
-        </div>
-
+  {navItem('Dashboard', '/dashboard', '📊')}
+  {navItem('Alerts', '/alerts', '⚠️')}
+  {role === 'admin' && navItem('Admin Panel', '/admin', '🔑')}
+</div>
         <div style={{ borderTop: '1px solid #e8e4dc', paddingTop: 16 }}>
           {fullName && (
             <div

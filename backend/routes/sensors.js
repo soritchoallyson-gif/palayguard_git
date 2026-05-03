@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const db = require('../db');
-const auth = require('../middleware/authMiddleware');
+const { auth, adminOnly } = require('../middleware/authMiddleware');
 
 router.get('/readings', auth, async (req, res) => {
   try {
@@ -49,7 +49,8 @@ router.get('/threshold', auth, async (req, res) => {
   res.json({ threshold: parseFloat(process.env.MOISTURE_THRESHOLD) });
 });
 
-router.post('/threshold', auth, async (req, res) => {
+// Admin only — update threshold
+router.post('/threshold', auth, adminOnly, async (req, res) => {
   const { threshold } = req.body;
   process.env.MOISTURE_THRESHOLD = threshold;
   res.json({ message: 'Threshold updated', threshold });

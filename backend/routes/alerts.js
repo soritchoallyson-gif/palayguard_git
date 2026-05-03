@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const db = require('../db');
-const auth = require('../middleware/authMiddleware');
+const { auth, adminOnly } = require('../middleware/authMiddleware');
 
 router.get('/', auth, async (req, res) => {
   try {
@@ -17,7 +17,8 @@ router.get('/', auth, async (req, res) => {
   }
 });
 
-router.patch('/:id/acknowledge', auth, async (req, res) => {
+// Admin only — acknowledge
+router.patch('/:id/acknowledge', auth, adminOnly, async (req, res) => {
   try {
     await db.query(
       'UPDATE alert_notification SET status = ? WHERE alert_id = ?',
@@ -29,7 +30,8 @@ router.patch('/:id/acknowledge', auth, async (req, res) => {
   }
 });
 
-router.patch('/:id/resolve', auth, async (req, res) => {
+// Admin only — resolve
+router.patch('/:id/resolve', auth, adminOnly, async (req, res) => {
   try {
     await db.query(
       'UPDATE alert_notification SET status = ? WHERE alert_id = ?',
