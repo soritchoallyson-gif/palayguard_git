@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const API = axios.create({
-  baseURL: 'https://palayguardgit-production.up.railway.app/api',
+  baseURL: 'http://localhost:3001/api',
 });
 
 API.interceptors.request.use((config) => {
