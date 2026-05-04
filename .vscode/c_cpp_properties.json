@@ -1,0 +1,29 @@
+{
+    "configurations": [
+        {
+            "name": "Win32",
+            "includePath": [
+                "${workspaceFolder}/**",
+                "C:/Users/Zoie/AppData/Local/Arduino15/packages/arduino/tools/avr-gcc/7.3.0-atmel3.6.1-arduino7/**",
+                "C:/Users/Zoie/AppData/Local/Arduino15/packages/arduino/hardware/avr/1.8.7/**",
+                "C:/Users/Zoie/AppData/Local/Arduino15/packages/arduino/hardware/avr/1.8.7/cores/arduino",
+                "C:/Users/Zoie/AppData/Local/Arduino15/packages/arduino/hardware/avr/1.8.7/variants/standard",
+                "C:/Users/Zoie/AppData/Local/Arduino15/packages/arduino/hardware/avr/1.8.7/libraries/**",
+                "C:/Users/Zoie/AppData/Local/Arduino15/packages/**"
+            ],
+            "defines": [
+                "_DEBUG",
+                "UNICODE",
+                "_UNICODE",
+                "ARDUINO=10819",
+                "__AVR_ATmega328P__",
+                "F_CPU=16000000L"
+            ],
+            "compilerPath": "C:/Users/Zoie/AppData/Local/Arduino15/packages/arduino/tools/avr-gcc/7.3.0-atmel3.6.1-arduino7/bin/avr-gcc.exe",
+            "cStandard": "c17",
+            "cppStandard": "c++17",
+            "intelliSenseMode": "linux-gcc-x86"
+        }
+    ],
+    "version": 4
+}

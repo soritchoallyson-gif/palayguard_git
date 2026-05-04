@@ -23,6 +23,9 @@ app.get('/api/health', (req, res) => {
 });
 
 const PORT = process.env.PORT || 3001;
-app.listen(PORT, () => {
+const server = app.listen(PORT, () => {
   console.log(`PalayGuard backend running on port ${PORT}`);
 });
+server.on('close', () => console.log('Server closed event'));
+server.on('error', (err) => console.error('Server error event', err));
+process.on('exit', (code) => console.log('Process exit with code', code));

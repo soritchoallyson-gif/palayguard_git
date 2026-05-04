@@ -1,4 +1,4 @@
-CREATE TABLE IF NOT EXISTS users (
+CREATE TABLE users (
   user_id INT AUTO_INCREMENT PRIMARY KEY,
   username VARCHAR(100) NOT NULL UNIQUE,
   password VARCHAR(255) NOT NULL,
@@ -9,7 +9,7 @@ CREATE TABLE IF NOT EXISTS users (
   created_at DATETIME DEFAULT NOW()
 );
 
-CREATE TABLE IF NOT EXISTS sensors (
+CREATE TABLE sensors (
   sensor_id INT AUTO_INCREMENT PRIMARY KEY,
   user_id INT,
   device_name VARCHAR(100),
@@ -18,18 +18,15 @@ CREATE TABLE IF NOT EXISTS sensors (
   FOREIGN KEY (user_id) REFERENCES users(user_id)
 );
 
-CREATE TABLE IF NOT EXISTS soil_moisture (
+CREATE TABLE soil_moisture (
   reading_id INT AUTO_INCREMENT PRIMARY KEY,
   sensor_id INT,
   moisture_value FLOAT,
-  temperature FLOAT,
-  humidity FLOAT,
-  timestamp DATETIME DEFAULT NOW(),
-  FOREIGN KEY (sensor_id) REFERENCES sensors(sensor_id),
-  INDEX idx_sensor_timestamp (sensor_id, timestamp DESC)
+  recorded_at DATETIME DEFAULT NOW(),
+  FOREIGN KEY (sensor_id) REFERENCES sensors(sensor_id)
 );
 
-CREATE TABLE IF NOT EXISTS alert_notification (
+CREATE TABLE alert_notification (
   alert_id INT AUTO_INCREMENT PRIMARY KEY,
   sensor_id INT,
   user_id INT,
@@ -41,7 +38,7 @@ CREATE TABLE IF NOT EXISTS alert_notification (
   FOREIGN KEY (user_id) REFERENCES users(user_id)
 );
 
-CREATE TABLE IF NOT EXISTS push_subscriptions (
+CREATE TABLE push_subscriptions (
   id INT AUTO_INCREMENT PRIMARY KEY,
   user_id INT,
   subscription_data TEXT,
@@ -51,10 +48,7 @@ CREATE TABLE IF NOT EXISTS push_subscriptions (
 
 -- ============================================================
 -- INSERT TEST USERS
--- Note: passwords will be properly hashed when you run seed.js
--- Temporary plain passwords here just to create the records
 -- ============================================================
-
 INSERT INTO users (username, password, role, full_name, contact_number, location) VALUES
 ('farmer1', 'temp_will_be_hashed', 'farmer', 'Archibald Temporaza', '09XX-XXX-XXXX', 'San Narciso'),
 ('admin', 'temp_will_be_hashed', 'admin', 'Pearl Logic Admin', '09XX-XXX-XXXX', 'Gordon College');
@@ -62,16 +56,14 @@ INSERT INTO users (username, password, role, full_name, contact_number, location
 -- ============================================================
 -- INSERT TEST SENSORS
 -- ============================================================
-
 INSERT INTO sensors (user_id, device_name, location_description, status) VALUES
 (1, 'Sensor 1', 'Zone A - North Field', 'active'),
 (1, 'Sensor 2', 'Zone B - South Field', 'active');
 
 -- ============================================================
--- INSERT SAMPLE MOISTURE READINGS (for testing the dashboard)
+-- INSERT SAMPLE MOISTURE READINGS
 -- ============================================================
-
-INSERT INTO soil_moisture (sensor_id, moisture_value, timestamp) VALUES
+INSERT INTO soil_moisture (sensor_id, moisture_value, recorded_at) VALUES
 (1, 82.5, NOW() - INTERVAL 50 MINUTE),
 (2, 39.2, NOW() - INTERVAL 45 MINUTE),
 (1, 80.1, NOW() - INTERVAL 40 MINUTE),
@@ -86,9 +78,8 @@ INSERT INTO soil_moisture (sensor_id, moisture_value, timestamp) VALUES
 (2, 29.4, NOW());
 
 -- ============================================================
--- INSERT SAMPLE ALERTS (for testing the alerts page)
+-- INSERT SAMPLE ALERTS
 -- ============================================================
-
 INSERT INTO alert_notification (sensor_id, user_id, alert_type, moisture_value, status, sent_at) VALUES
 (2, 1, 'Critical Moisture Drop', 29.4, 'critical', NOW()),
 (2, 1, 'Low Moisture', 33.1, 'acknowledged', NOW() - INTERVAL 15 MINUTE),
