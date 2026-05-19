@@ -95,3 +95,13 @@ INSERT INTO alert_notification (sensor_id, user_id, alert_type, moisture_value, 
 (2, 1, 'Low Moisture', 35.5, 'resolved', NOW() - INTERVAL 5 HOUR),
 (1, 1, 'Critical Moisture Drop', 31.0, 'critical', NOW() - INTERVAL 15 HOUR),
 (2, 1, 'Low Moisture', 37.8, 'pending', NOW() - INTERVAL 1 DAY);
+
+CREATE TABLE IF NOT EXISTS system_settings (
+  setting_key VARCHAR(100) PRIMARY KEY,
+  setting_value VARCHAR(255) NOT NULL,
+  updated_at DATETIME DEFAULT NOW() ON UPDATE NOW()
+);
+
+INSERT INTO system_settings (setting_key, setting_value)
+VALUES ('moisture_threshold', '70')
+ON DUPLICATE KEY UPDATE setting_value = setting_value;

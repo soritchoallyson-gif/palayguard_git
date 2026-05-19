@@ -1,0 +1,9 @@
+ID,Moisture,Timestamp,Sensor
+23,1,Sun May 03 2026 11:35:30 GMT+0800 (Singapore Standard Time),Sensor 1
+22,1,Sun May 03 2026 11:25:58 GMT+0800 (Singapore Standard Time),Sensor 1
+21,0,Sun May 03 2026 11:01:58 GMT+0800 (Singapore Standard Time),Sensor 1
+20,65.2,Sun May 03 2026 10:02:35 GMT+0800 (Singapore Standard Time),Sensor 1
+19,68.4,Sun May 03 2026 09:52:35 GMT+0800 (Singapore Standard Time),Sensor 1
+18,70.1,Sun May 03 2026 09:42:35 GMT+0800 (Singapore Standard Time),Sensor 1
+17,72.5,Sun May 03 2026 09:32:35 GMT+0800 (Singapore Standard Time),Sensor 1
+16,75,Sun May 03 2026 09:22:35 GMT+0800 (Singapore Standard Time),Sensor 1

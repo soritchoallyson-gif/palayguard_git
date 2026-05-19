@@ -332,20 +332,30 @@ export default function Dashboard() {
                   <CartesianGrid strokeDasharray="3 3" stroke="#f0ede6" />
                   <XAxis
                     dataKey="timestamp"
-                    tickFormatter={(v) =>
-                      new Date(v).toLocaleTimeString([], {
-                        hour: '2-digit', minute: '2-digit',
-                      })
-                    }
-                    tick={{ fontSize: 11, fill: '#999' }}
-                  />
-                  <YAxis
-                    domain={[0, 100]}
-                    tick={{ fontSize: 11, fill: '#999' }}
-                  />
+                    tickFormatter={(v) => {
+                      const d = new Date(v);
+                      return d.toLocaleDateString('en-PH', {
+                        month: 'short',
+                        day: 'numeric',
+                      }) + ' ' + d.toLocaleTimeString([], {
+                        hour: '2-digit',
+                        minute: '2-digit',
+                      });
+                    }}
+                    tick={{ fontSize: 10, fill: '#999' }}
+                    interval="preserveStartEnd"
+          />
+              
                   <Tooltip
                     formatter={(v) => [`${Math.round(v)}%`, 'Moisture']}
-                    labelFormatter={(v) => new Date(v).toLocaleTimeString()}
+                    labelFormatter={(v) => new Date(v).toLocaleString('en-PH', {
+                        month: 'short',
+                        day: 'numeric',
+                        year: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        second: '2-digit',
+})}
                   />
                   <Line
                     type="monotone"

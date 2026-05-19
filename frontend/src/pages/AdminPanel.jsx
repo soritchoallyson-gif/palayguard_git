@@ -191,11 +191,26 @@ export default function AdminPanel() {
               <input type="number" min="0" max="100" value={newThreshold} onChange={e => setNewThreshold(e.target.value)} style={{ ...inputStyle, marginBottom: 16 }} />
               <button onClick={handleUpdateThreshold} style={btnStyle()}>Update Threshold</button>
               <div style={{ marginTop: 20, background: '#f0ede6', borderRadius: 10, padding: 16, fontSize: 13, color: '#555' }}>
-                <strong>Guide:</strong><br />
-                🔴 Below 20% → Critical Moisture Drop alert<br />
-                🟡 Below threshold% → Low Moisture alert<br />
-                🟢 Above threshold% → Normal
-              </div>
+  <strong style={{ display: 'block', marginBottom: 10 }}>Guide:</strong>
+  <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+      <span>🔵</span>
+      <span><strong>Above 95%</strong> → Overwatering Detected</span>
+    </div>
+    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+      <span>🟢</span>
+      <span><strong>70% – 95%</strong> → Normal (no alert)</span>
+    </div>
+    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+      <span>🟡</span>
+      <span><strong>40% – threshold%</strong> → Low Moisture alert</span>
+    </div>
+    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+      <span>🔴</span>
+      <span><strong>Below 40%</strong> → Critical Moisture Drop alert</span>
+    </div>
+  </div>
+</div>
             </div>
           )}
         </div>

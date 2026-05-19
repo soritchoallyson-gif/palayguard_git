@@ -59,11 +59,13 @@ export default function Alerts() {
   const alertBgColor = {
     'Critical Moisture Drop': '#fde8e8',
     'Low Moisture': '#fef3e2',
+     'Overwatering Detected': '#e8f0ff',
   };
 
   const alertTextColor = {
     'Critical Moisture Drop': '#c0392b',
     'Low Moisture': '#e67e22',
+    'Overwatering Detected': '#1a56db'
   };
 
   const timeAgo = (dateStr) => {

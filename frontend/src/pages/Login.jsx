@@ -42,7 +42,7 @@ export default function Login() {
         backgroundSize: 'cover',
         backgroundPosition: 'center',
         backgroundRepeat: 'no-repeat',
-        filter: 'brightness(0.8)',
+        filter: 'brightness(0.9) grayscale(0.3)',
         zIndex: 0,
       }} />
 
@@ -51,7 +51,8 @@ export default function Login() {
         position: 'relative', zIndex: 1,
         padding: '14px 24px',
         display: 'flex', alignItems: 'center', gap: 10,
-        background: 'rgba(255,255,255,0.92)',
+        background: 'rgba(255,255,255,0.15)',
+        borderBottom: '1px solid rgba(255,255,255,0.3)',
       }}>
         <img
           src={require('../assets/palayguard_logo.jpg')}
@@ -62,7 +63,7 @@ export default function Login() {
             borderRadius: '50%',
           }}
         />
-        <span style={{ fontWeight: 700, fontSize: 17 }}>PalayGuard</span>
+        <span style={{ fontWeight: 700, fontSize: 17, color: '#ffffff' }}>PalayGuard</span>
       </div>
 
       {/* Login Card */}
@@ -72,21 +73,21 @@ export default function Login() {
         justifyContent: 'center', padding: 20,
       }}>
         <div style={{
-          background: 'rgba(220,230,210,0.88)',
-          backdropFilter: 'blur(12px)',
-          borderRadius: 20, padding: '40px 32px',
-          width: '100%', maxWidth: 400,
+          background: 'rgba(37, 36, 36, 0.6)',
+          border: '3px solid rgba(48, 43, 43, 0.73)',
+          borderRadius: 20, padding: '50px 40px',
+          width: '100%', maxWidth: 480,
           display: 'flex', flexDirection: 'column',
           alignItems: 'center', gap: 24,
-          boxShadow: '0 8px 32px rgba(0,0,0,0.12)',
+          boxShadow: '0 8px 32px rgba(0,0,0,0.15)',
         }}>
 
-          {/* Big Logo */}
+ 
           <img
             src={require('../assets/palayguard_logo.jpg')}
             alt="PalayGuard Logo"
             style={{
-              width: 100, height: 100,
+              width: 120, height: 120,
               objectFit: 'contain',
               borderRadius: '50%',
             }}
@@ -99,8 +100,9 @@ export default function Login() {
           >
             <div>
               <label style={{
-                fontSize: 11, fontWeight: 700, letterSpacing: 1,
-                color: '#444', display: 'block', marginBottom: 8,
+                fontSize: 14, fontWeight: 700, letterSpacing: 1,
+                color: '#ffffff', display: 'block', marginBottom: 8,
+                textShadow: '0 1px 3px rgba(0,0,0,0.5)',
               }}>USERNAME</label>
               <input
                 type="text"
@@ -109,17 +111,23 @@ export default function Login() {
                 placeholder="Enter your username"
                 style={{
                   width: '100%', padding: '13px 18px',
-                  borderRadius: 28, border: 'none',
-                  background: '#ffffff', fontSize: 14,
-                  outline: 'none', color: '#1a1a1a',
+                  borderRadius: 28,
+                  background: '#ffffff',
+                  color: '#1a1a1a',
+                  border: '2px solid rgba(255,255,255,0.9)',
+                  boxShadow: '0 2px 8px rgba(0,0,0,0.3)',
+                  fontSize: 14,
+                  outline: 'none',
+                  boxSizing: 'border-box',
                 }}
               />
             </div>
 
             <div>
               <label style={{
-                fontSize: 11, fontWeight: 700, letterSpacing: 1,
-                color: '#444', display: 'block', marginBottom: 8,
+                fontSize: 14, fontWeight: 700, letterSpacing: 1,
+                color: '#ffffff', display: 'block', marginBottom: 8,
+                textShadow: '0 1px 3px rgba(0,0,0,0.5)',
               }}>PASSWORD</label>
               <input
                 type="password"
@@ -128,17 +136,23 @@ export default function Login() {
                 placeholder="Enter your password"
                 style={{
                   width: '100%', padding: '13px 18px',
-                  borderRadius: 28, border: 'none',
-                  background: '#ffffff', fontSize: 14,
-                  outline: 'none', color: '#1a1a1a',
+                  borderRadius: 28,
+                  background: '#ffffff',
+                  color: '#1a1a1a',
+                  border: '2px solid rgba(255,255,255,0.9)',
+                  boxShadow: '0 2px 8px rgba(0,0,0,0.3)',
+                  fontSize: 14,
+                  outline: 'none',
+                  boxSizing: 'border-box',
                 }}
               />
             </div>
 
             {error && (
               <p style={{
-                color: '#c0392b', fontSize: 13,
+                color: '#ffcccc', fontSize: 13,
                 textAlign: 'center', fontWeight: 500,
+                textShadow: '0 1px 3px rgba(0,0,0,0.5)',
               }}>
                 {error}
               </p>
@@ -149,11 +163,14 @@ export default function Login() {
               disabled={loading}
               style={{
                 padding: '14px', borderRadius: 28,
-                background: '#3d1f1f', color: '#fff',
-                border: 'none', fontSize: 15, fontWeight: 600,
+                background: 'rgba(61, 31, 31, 0.9)',
+                color: '#fff',
+                border: '1px solid rgba(255,255,255,0.3)',
+                fontSize: 15, fontWeight: 600,
                 cursor: loading ? 'not-allowed' : 'pointer',
                 marginTop: 4, opacity: loading ? 0.8 : 1,
                 transition: 'opacity 0.2s',
+                boxShadow: '0 2px 8px rgba(0,0,0,0.3)',
               }}
             >
               {loading ? 'Logging in...' : 'Login'}
