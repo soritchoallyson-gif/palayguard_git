@@ -7,12 +7,16 @@ const lastAlertTime = {
   'Low Moisture': null,
   'Critical Moisture Drop': null,
   'Overwatering Detected': null,
+  'Overwatering Risk — Open Drainage': null,
+  'Overwatering Risk — Prepare Drainage': null,
 };
 
 const ALERT_COOLDOWN = {
   'Low Moisture': 30 * 60 * 1000,
   'Critical Moisture Drop': 30 * 60 * 1000,
   'Overwatering Detected': 5 * 60 * 1000,
+  'Overwatering Risk — Open Drainage': 60 * 60 * 1000,
+  'Overwatering Risk — Prepare Drainage': 60 * 60 * 1000,
 };
 
 function shouldSendAlert(alertType) {
@@ -80,6 +84,41 @@ router.post('/threshold', auth, adminOnly, async (req, res) => {
       [threshold, threshold, threshold]
     );
     res.json({ message: 'Threshold updated', threshold });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Rain prediction alert endpoint
+router.post('/rain-alert', auth, async (req, res) => {
+  const { sensor_id, moisture, rain_probability } = req.body;
+  try {
+    const [sensorData] = await db.query(
+      'SELECT user_id FROM sensors WHERE sensor_id = ?',
+      [sensor_id]
+    );
+    if (sensorData.length === 0) {
+      return res.status(404).json({ message: 'Sensor not found' });
+    }
+
+    let alertType = null;
+    if (moisture >= 70 && rain_probability >= 70) {
+      alertType = 'Overwatering Risk — Open Drainage';
+    } else if (moisture >= 60 && rain_probability >= 70) {
+      alertType = 'Overwatering Risk — Prepare Drainage';
+    }
+
+    if (alertType && shouldSendAlert(alertType)) {
+      const timestamp = new Date();
+      await db.query(
+        'INSERT INTO alert_notification (sensor_id, user_id, alert_type, moisture_value, status, sent_at) VALUES (?, ?, ?, ?, ?, ?)',
+        [sensor_id, sensorData[0].user_id, alertType, moisture, 'pending', timestamp]
+      );
+      console.log('RAIN ALERT created -- ' + alertType);
+      return res.json({ message: 'Rain alert created', alertType });
+    }
+
+    res.json({ message: 'No rain alert needed or cooldown active' });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -195,13 +234,6 @@ router.post('/data', async (req, res) => {
           [sensor_id, sensorData[0].user_id, alertType, moistureNum, alertStatus, timestamp]
         );
         console.log('ALERT created -- ' + alertType + ' at ' + moistureNum + '%');
-
-        if (global.sendPushToAll) {
-          await global.sendPushToAll({
-            title: 'PalayGuard Alert',
-            body: alertType + ' -- Moisture at ' + moistureNum + '% on ' + timestamp.toLocaleString(),
-          });
-        }
       }
     }
 

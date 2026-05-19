@@ -89,7 +89,7 @@ export default function AdminPanel() {
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 20px', background: '#ffffff', borderBottom: '1px solid #e8e4dc', position: 'sticky', top: 0, zIndex: 50 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
             <button onClick={() => setSidebarOpen(!sidebarOpen)} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 22, color: '#555', padding: 4 }}>☰</button>
-            <span style={{ fontWeight: 600, fontSize: 16 }}>🔑 Admin Panel</span>
+            <span style={{ fontWeight: 600, fontSize: 16 }}>Admin Panel</span>
           </div>
         </div>
 
@@ -102,7 +102,7 @@ export default function AdminPanel() {
 
           {/* Tabs */}
           <div style={{ display: 'flex', gap: 8, marginBottom: 24 }}>
-            {[['users', '👥 Manage Users'], ['threshold', '⚙️ Threshold Settings']].map(([key, label]) => (
+            {[['users', 'Manage Users'], ['threshold', 'Threshold Settings']].map(([key, label]) => (
               <button key={key} onClick={() => setActiveTab(key)} style={{ padding: '10px 20px', borderRadius: 10, border: 'none', cursor: 'pointer', fontSize: 13, fontWeight: 600, background: activeTab === key ? '#2d5a27' : '#ffffff', color: activeTab === key ? '#ffffff' : '#555' }}>
                 {label}
               </button>
@@ -115,7 +115,7 @@ export default function AdminPanel() {
 
               {/* Create User */}
               <div style={{ background: '#ffffff', borderRadius: 16, padding: 24 }}>
-                <h3 style={{ fontSize: 15, fontWeight: 700, marginBottom: 16, color: '#1a1a1a' }}>➕ Create New User</h3>
+                <h3 style={{ fontSize: 15, fontWeight: 700, marginBottom: 16, color: '#1a1a1a' }}>Create New User</h3>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 12, marginBottom: 16 }}>
                   {[
                     ['Username', 'username', 'text'],
@@ -143,7 +143,7 @@ export default function AdminPanel() {
               {/* Users Table */}
               <div style={{ background: '#ffffff', borderRadius: 16, overflow: 'hidden' }}>
                 <div style={{ padding: '16px 20px', borderBottom: '1px solid #e8e4dc' }}>
-                  <h3 style={{ fontSize: 15, fontWeight: 700, color: '#1a1a1a' }}>👥 All Users ({users.length})</h3>
+                  <h3 style={{ fontSize: 15, fontWeight: 700, color: '#1a1a1a' }}>All Users ({users.length})</h3>
                 </div>
                 <div style={{ overflowX: 'auto' }}>
                   <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13, minWidth: 600 }}>
@@ -161,7 +161,7 @@ export default function AdminPanel() {
                           <td style={{ padding: '14px 20px', color: '#555' }}>{u.username}</td>
                           <td style={{ padding: '14px 20px' }}>
                             <span style={{ background: u.role === 'admin' ? '#e8f0e8' : '#f0ede6', color: u.role === 'admin' ? '#2d5a27' : '#888', padding: '3px 10px', borderRadius: 20, fontSize: 11, fontWeight: 700 }}>
-                              {u.role === 'admin' ? '🔑 Admin' : '👨‍🌾 Farmer'}
+                              {u.role === 'admin' ? 'Admin' : 'Farmer'}
                             </span>
                           </td>
                           <td style={{ padding: '14px 20px', color: '#888' }}>{u.location || '—'}</td>
@@ -183,36 +183,46 @@ export default function AdminPanel() {
           {/* Threshold Tab */}
           {activeTab === 'threshold' && (
             <div style={{ background: '#ffffff', borderRadius: 16, padding: 24, maxWidth: 500 }}>
-              <h3 style={{ fontSize: 15, fontWeight: 700, marginBottom: 8, color: '#1a1a1a' }}>⚙️ Moisture Threshold</h3>
+              <h3 style={{ fontSize: 15, fontWeight: 700, marginBottom: 8, color: '#1a1a1a' }}>Moisture Threshold</h3>
               <p style={{ fontSize: 13, color: '#888', marginBottom: 20 }}>
                 Alerts trigger when moisture drops below this value. Current threshold: <strong>{threshold}%</strong>
               </p>
               <label style={{ fontSize: 11, fontWeight: 700, color: '#888', letterSpacing: 1, display: 'block', marginBottom: 8 }}>NEW THRESHOLD (%)</label>
-              <input type="number" min="0" max="100" value={newThreshold} onChange={e => setNewThreshold(e.target.value)} style={{ ...inputStyle, marginBottom: 16 }} />
+              <input
+                type="number"
+                min="0"
+                max="100"
+                value={newThreshold}
+                onChange={e => setNewThreshold(e.target.value)}
+                style={{ ...inputStyle, marginBottom: 16 }}
+              />
               <button onClick={handleUpdateThreshold} style={btnStyle()}>Update Threshold</button>
+
+              {/* Guide */}
               <div style={{ marginTop: 20, background: '#f0ede6', borderRadius: 10, padding: 16, fontSize: 13, color: '#555' }}>
-  <strong style={{ display: 'block', marginBottom: 10 }}>Guide:</strong>
-  <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-      <span>🔵</span>
-      <span><strong>Above 95%</strong> → Overwatering Detected</span>
-    </div>
-    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-      <span>🟢</span>
-      <span><strong>70% – 95%</strong> → Normal (no alert)</span>
-    </div>
-    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-      <span>🟡</span>
-      <span><strong>40% – threshold%</strong> → Low Moisture alert</span>
-    </div>
-    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-      <span>🔴</span>
-      <span><strong>Below 40%</strong> → Critical Moisture Drop alert</span>
-    </div>
-  </div>
-</div>
+                <strong>Guide:</strong>
+                <div style={{ marginTop: 8, display: 'flex', flexDirection: 'column', gap: 8 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <span style={{ width: 12, height: 12, borderRadius: '50%', background: '#1a56db', display: 'inline-block', flexShrink: 0 }} />
+                    <span>Above 95% — Overwatering Detected</span>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <span style={{ width: 12, height: 12, borderRadius: '50%', background: '#2d5a27', display: 'inline-block', flexShrink: 0 }} />
+                    <span>{threshold}% – 95% — Normal (no alert)</span>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <span style={{ width: 12, height: 12, borderRadius: '50%', background: '#e67e22', display: 'inline-block', flexShrink: 0 }} />
+                    <span>40% – {threshold}% — Low Moisture alert</span>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <span style={{ width: 12, height: 12, borderRadius: '50%', background: '#c0392b', display: 'inline-block', flexShrink: 0 }} />
+                    <span>Below 40% — Critical Moisture Drop alert</span>
+                  </div>
+                </div>
+              </div>
             </div>
           )}
+
         </div>
       </div>
     </div>
