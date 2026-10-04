@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import riceField from '../assets/ricefield.jpg';
 import logo from '../assets/palayguard_logo.jpg';
