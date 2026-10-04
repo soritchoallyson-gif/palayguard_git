@@ -73,7 +73,7 @@ void loop() {
   Serial.print(F(" | Moisture: ")); Serial.print(moisture); Serial.println(F("%"));
 
   sendData(moisture);
-  delay(20000);
+  delay(3600000UL);
 }
 
 void sendData(int moisture) {

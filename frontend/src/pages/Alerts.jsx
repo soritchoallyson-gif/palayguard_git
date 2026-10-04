@@ -59,7 +59,7 @@ export default function Alerts() {
   const alertBgColor = {
     'Critical Moisture Drop': '#fde8e8',
     'Low Moisture': '#fef3e2',
-     'Overwatering Detected': '#e8f0ff',
+    'Overwatering Detected': '#e8f0ff',
   };
 
   const alertTextColor = {
