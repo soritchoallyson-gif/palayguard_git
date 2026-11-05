@@ -172,7 +172,7 @@ export default function Alerts() {
               borderBottom: '1px solid #e8e4dc',
               background: '#f8f6f2',
             }}>
-              Showing all alert logs
+              {role === 'admin' ? 'Showing alert logs for all farmers' : 'Showing alert logs for your sensors'}
             </div>
 
             <div style={{ overflowX: 'auto' }}>
@@ -182,7 +182,10 @@ export default function Alerts() {
               }}>
                 <thead>
                   <tr style={{ background: '#f8f6f2' }}>
-                    {['TIMESTAMP', 'SENSOR', 'ALERT TYPE', 'STATUS', 'ACTIONS'].map(
+                    {(role === 'admin'
+                      ? ['TIMESTAMP', 'FARMER', 'SENSOR', 'ALERT TYPE', 'STATUS', 'ACTIONS']
+                      : ['TIMESTAMP', 'SENSOR', 'ALERT TYPE', 'STATUS', 'ACTIONS']
+                    ).map(
                       (h) => (
                         <th key={h} style={{
                           padding: '12px 20px', textAlign: 'left',
@@ -209,6 +212,11 @@ export default function Alerts() {
                           {timeAgo(a.sent_at)}
                         </div>
                       </td>
+                      {role === 'admin' && (
+                        <td style={{ padding: '14px 20px', color: '#555' }}>
+                          {a.owner_name || '—'}
+                        </td>
+                      )}
                       <td style={{ padding: '14px 20px' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                           <span style={{
@@ -281,7 +289,7 @@ export default function Alerts() {
                   ))}
                   {filtered.length === 0 && (
                     <tr>
-                      <td colSpan={5} style={{
+                      <td colSpan={role === 'admin' ? 6 : 5} style={{
                         padding: 48, textAlign: 'center',
                         color: '#aaa', fontSize: 14,
                       }}>

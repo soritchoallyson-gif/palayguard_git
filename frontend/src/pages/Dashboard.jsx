@@ -19,6 +19,11 @@ export default function Dashboard() {
   const [latest, setLatest] = useState([]);
   const [threshold, setThreshold] = useState(70);
   const [criticalAlerts, setCriticalAlerts] = useState([]);
+  const [sensors, setSensors] = useState([]);
+  const [loaded, setLoaded] = useState(false);
+  const [loadError, setLoadError] = useState(false);
+  const [farmers, setFarmers] = useState([]);
+  const [viewUserId, setViewUserId] = useState('');
   const [lastUpdate, setLastUpdate] = useState('--:--:--');
   const [userCoords, setUserCoords] = useState({ lat: 15.0143, lon: 120.0805 });
   const [weather, setWeather] = useState({
@@ -160,68 +165,89 @@ export default function Dashboard() {
 
   // ── Sensor data fetch ────────────────────────────────
   const fetchData = useCallback(async () => {
-    try {
-      const [r, l, a, t] = await Promise.all([
-        API.get('/sensors/readings'),
-        API.get('/sensors/readings/latest'),
-        API.get('/alerts'),
-        API.get('/sensors/threshold'),
-      ]);
-      setReadings(r.data.slice(0, 20).reverse());
-      setLatest(l.data);
-      setCriticalAlerts(a.data.filter((al) => al.status === 'critical').slice(0, 3));
-      setThreshold(t.data.threshold);
-      if (l.data.length > 0) {
-        setLastUpdate(
-          new Date(l.data[0].timestamp).toLocaleString('en-PH', {
-            month: 'short', day: 'numeric',
-            hour: '2-digit', minute: '2-digit', second: '2-digit',
-          })
-        );
-      }
-    } catch {}
-  }, []);
-
-  // Smart refresh rate based on moisture condition
-  useEffect(() => {
-    fetchData();
-
-    const avg = latest.length
-      ? latest.reduce((s, r) => s + r.moisture_value, 0) / latest.length
-      : 70;
-
-    let refreshRate;
-    if (avg > 95 || avg < 40) {
-      refreshRate = 30000;       // 30 seconds — critical or overwatering
-    } else if (avg < threshold) {
-      refreshRate = 60000;       // 1 minute — low moisture
+  const params = role === 'admin' && viewUserId ? { user_id: viewUserId } : {};
+  try {
+    const [r, l, a, t, s] = await Promise.all([
+      API.get('/sensors/readings', { params }),
+      API.get('/sensors/readings/latest', { params }),
+      API.get('/alerts', { params }),
+      API.get('/sensors/threshold', { params }),
+      API.get('/sensors/sensors', { params }),
+    ]);
+    setReadings(r.data.slice(0, 20).reverse());
+    setLatest(l.data);
+    setSensors(s.data);
+    setCriticalAlerts(a.data.filter((al) => al.status === 'critical').slice(0, 3));
+    setThreshold(t.data.threshold);
+    if (l.data.length > 0) {
+      const newest = Math.max(...l.data.map((x) => new Date(x.timestamp).getTime()));
+      setLastUpdate(
+        new Date(newest).toLocaleString('en-PH', {
+          month: 'short', day: 'numeric',
+          hour: '2-digit', minute: '2-digit', second: '2-digit',
+        })
+      );
     } else {
-      refreshRate = 120000;      // 2 minutes — normal
+      setLastUpdate('--:--:--');
     }
+    setLoadError(false);
+    setLoaded(true);
+  } catch {
+    setLoadError(true);
+  }
+}, [role, viewUserId]);
 
-    const interval = setInterval(fetchData, refreshRate);
-    return () => clearInterval(interval);
-  }, [fetchData, latest, threshold]);
+useEffect(() => {
+  if (role !== 'admin') return;
+  API.get('/auth/users')
+    .then((res) => setFarmers(res.data.filter((u) => u.role === 'farmer')))
+    .catch(() => {});
+}, [role]);
 
-  // Check rain + moisture for overwatering risk alert
-  useEffect(() => {
-    if (weather.rainWarning && latest.length > 0) {
-      const currentMoisture = latest[0].moisture_value;
-      if (currentMoisture >= 60) {
+// Depend on the rate NUMBER, not the arrays (the arrays caused an endless refetch loop)
+const avgForRate = latest.length
+  ? latest.reduce((s, r) => s + r.moisture_value, 0) / latest.length
+  : 70;
+let refreshRate;
+if (avgForRate > 95 || avgForRate < 40) refreshRate = 30000;
+else if (avgForRate < threshold) refreshRate = 60000;
+else refreshRate = 120000;
+
+useEffect(() => {
+  fetchData();
+  const interval = setInterval(fetchData, refreshRate);
+  return () => clearInterval(interval);
+}, [fetchData, refreshRate]);
+
+useEffect(() => {
+  if (weather.rainWarning && latest.length > 0) {
+    latest.forEach((reading) => {
+      if (reading.moisture_value >= 60) {
         API.post('/sensors/rain-alert', {
-          sensor_id: latest[0].sensor_id,
-          moisture: currentMoisture,
+          sensor_id: reading.sensor_id,
           rain_probability: weather.maxRainProb,
         }).catch(() => {});
       }
-    }
-  }, [weather.rainWarning, weather.maxRainProb, latest]);
+    });
+  }
+}, [weather.rainWarning, weather.maxRainProb, latest]);
+
+const handleViewChange = (value) => {
+  setViewUserId(value);
+  setLatest([]);
+  setReadings([]);
+  setSensors([]);
+  setCriticalAlerts([]);
+  setLoaded(false);
+};
+
+const hasSensors = sensors.length > 0;
 
   const avgMoisture = latest.length
     ? latest.reduce((s, r) => s + r.moisture_value, 0) / latest.length
     : 0;
 
-  const allNominal = latest.every((r) => r.moisture_value >= threshold);
+  const allNominal = latest.length > 0 && latest.every((r) => r.moisture_value >= threshold);
   const showOverwaterDetected = latest.some(r => r.moisture_value > 95);
   const showOverwaterRisk = weather.rainWarning && latest.some(r => r.moisture_value >= 60) && !showOverwaterDetected;
 
@@ -260,6 +286,48 @@ export default function Dashboard() {
 
         <div style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: 20 }}>
 
+
+        {role === 'admin' && (
+  <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
+    <label style={{ fontSize: 11, fontWeight: 700, color: '#888', letterSpacing: 1 }}>VIEWING</label>
+    <select
+      value={viewUserId}
+      onChange={(e) => handleViewChange(e.target.value)}
+      style={{ padding: '9px 14px', borderRadius: 10, border: '1px solid #e0ddd6', fontSize: 13, background: '#ffffff', color: '#1a1a1a', outline: 'none' }}
+    >
+      <option value="">All farmers</option>
+      {farmers.map((f) => (
+        <option key={f.user_id} value={f.user_id}>{f.full_name || f.username}</option>
+      ))}
+    </select>
+  </div>
+)}
+
+{loadError && (
+  <div style={{ background: '#fde8e8', border: '1px solid #f5c6c6', borderRadius: 10, padding: '12px 16px', fontSize: 13, color: '#c0392b', fontWeight: 600 }}>
+    Could not load your data. Retrying automatically...
+  </div>
+)}
+
+{loaded && !hasSensors && (
+  <div style={{ background: '#ffffff', borderRadius: 18, padding: '48px 24px', textAlign: 'center', border: '1px dashed #d8d3c7' }}>
+    <div style={{ fontSize: 40, marginBottom: 12 }}>🌱</div>
+    <div style={{ fontSize: 18, fontWeight: 700, color: '#1a1a1a', marginBottom: 8 }}>
+      {role === 'admin' && !viewUserId
+        ? 'No sensors have been registered yet'
+        : role === 'admin'
+        ? 'This farmer has no sensors yet'
+        : 'No sensors are connected to your account yet'}
+    </div>
+    <div style={{ fontSize: 13, color: '#888', maxWidth: 420, margin: '0 auto', lineHeight: 1.6 }}>
+      {role === 'admin'
+        ? 'Register a sensor and assign it to a farmer in the Admin Panel, under the Sensors tab.'
+        : 'Once the administrator registers a sensor for you, its moisture readings, history and alerts will appear here.'}
+    </div>
+  </div>
+)}
+
+{hasSensors && (<>
           {/* Overwatering Detected Banner */}
           {showOverwaterDetected && (
             <div style={{
@@ -353,7 +421,9 @@ export default function Dashboard() {
                 background: '#e4e0d8', borderRadius: 12,
                 padding: '12px 16px', fontSize: 13, color: '#555', lineHeight: 1.6,
               }}>
-                {avgMoisture > 95
+                {latest.length === 0
+                  ? 'Waiting for the first reading from your sensor.'
+                  : avgMoisture > 95
                   ? 'Soil is overwatered. Open drainage channels immediately.'
                   : avgMoisture >= threshold
                   ? 'Soil moisture is in the normal range. No irrigation needed.'
@@ -467,7 +537,10 @@ export default function Dashboard() {
                 Admin View
               </div>
               <div style={{ fontSize: 13, color: '#555' }}>
-                You are logged in as <strong>{fullName}</strong>. You have full access to all system data and controls.
+                You are logged in as <strong>{fullName}</strong>.{' '}
+                {viewUserId
+                  ? 'You are viewing one farmer\'s dashboard. Use the selector at the top to switch.'
+                  : 'You are viewing every farmer\'s sensors combined. Pick a farmer at the top to see their dashboard alone.'}
               </div>
             </div>
           )}
@@ -533,7 +606,9 @@ export default function Dashboard() {
                 </LineChart>
               </ResponsiveContainer>
             </div>
-          )}
+                    )}
+
+          </>)}
 
         </div>
       </div>

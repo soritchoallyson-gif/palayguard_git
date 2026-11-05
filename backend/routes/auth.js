@@ -22,7 +22,7 @@ router.post('/login', async (req, res) => {
       return res.status(401).json({ message: 'Invalid credentials' });
 
     const token = jwt.sign(
-      { user_id: user.user_id, username: user.username, role: user.role },
+      { id: user.user_id, username: user.username, role: user.role },
       process.env.JWT_SECRET,
       { expiresIn: '24h' }
     );
@@ -32,11 +32,14 @@ router.post('/login', async (req, res) => {
   }
 });
 
-// Admin only — get all users
 router.get('/users', auth, adminOnly, async (req, res) => {
   try {
     const [rows] = await db.query(
-      'SELECT user_id, username, full_name, role, contact_number, location, created_at FROM users'
+      `SELECT u.user_id, u.username, u.full_name, u.role, u.contact_number, u.location,
+              u.created_at, u.moisture_threshold,
+              (SELECT COUNT(*) FROM sensors s WHERE s.user_id = u.user_id) AS sensor_count
+       FROM users u
+       ORDER BY u.created_at, u.user_id`
     );
     res.json(rows);
   } catch (err) {
@@ -44,7 +47,6 @@ router.get('/users', auth, adminOnly, async (req, res) => {
   }
 });
 
-// Admin only — create new user
 router.post('/register', auth, adminOnly, async (req, res) => {
   const { username, password, full_name, role, contact_number, location } = req.body;
   try {
@@ -62,10 +64,22 @@ router.post('/register', auth, adminOnly, async (req, res) => {
   }
 });
 
-// Admin only — delete user
 router.delete('/users/:id', auth, adminOnly, async (req, res) => {
   try {
-    await db.query('DELETE FROM users WHERE user_id = ?', [req.params.id]);
+    const id = parseInt(req.params.id, 10);
+    if (isNaN(id)) return res.status(400).json({ message: 'Invalid user id' });
+    if (id === Number(req.user.user_id)) {
+      return res.status(400).json({ message: 'You cannot delete your own account' });
+    }
+    const [owned] = await db.query('SELECT COUNT(*) AS c FROM sensors WHERE user_id = ?', [id]);
+    if (owned[0].c > 0) {
+      return res.status(400).json({
+        message: `This user still owns ${owned[0].c} sensor(s). Reassign or delete those sensors first.`,
+      });
+    }
+    await db.query('DELETE FROM push_subscriptions WHERE user_id = ?', [id]);
+    await db.query('UPDATE alert_notification SET user_id = NULL WHERE user_id = ?', [id]);
+    await db.query('DELETE FROM users WHERE user_id = ?', [id]);
     res.json({ message: 'User deleted' });
   } catch (err) {
     res.status(500).json({ error: err.message });
