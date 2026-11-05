@@ -2,10 +2,10 @@ require('dotenv').config();
 
 const sensorAuth = (req, res, next) => {
   const received = req.headers['x-api-key'];
-  const expected = process.env.SENSOR_API_KEY;
+  const expected = process.env.ARDUINO_API_KEY;
 
   if (!expected) {
-    console.error('SENSOR_API_KEY is not set in .env');
+    console.error('ARDUINO_API_KEY is not set');
     return res.status(500).json({ message: 'Server misconfigured' });
   }
 
